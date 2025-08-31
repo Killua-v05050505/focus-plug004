@@ -25,7 +25,7 @@ struct FocusPlugApp: App {
                 .environmentObject(blockerService)
                 .environmentObject(musicPlayer)
                 .environmentObject(statsManager)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(.light)
                 .onAppear {
                     setupApp()
                 }

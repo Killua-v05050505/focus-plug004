@@ -24,11 +24,6 @@ struct ContentView: View {
                     
                     // Main Content Area
                     VStack(spacing: 0) {
-                        // Top Header
-                        TopHeaderView()
-                            .padding(.horizontal, 40)
-                            .padding(.top, 32)
-                        
                         // Content based on selected view
                         ScrollView {
                             VStack(spacing: 40) {
@@ -45,7 +40,7 @@ struct ContentView: View {
                             }
                             .padding(.horizontal, 40)
                             .padding(.bottom, 40)
-                            .frame(minHeight: geometry.size.height - 120)
+                            .frame(minHeight: geometry.size.height - 40)
                         }
                     }
                     .frame(maxWidth: .infinity)

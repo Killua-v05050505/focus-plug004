@@ -12,12 +12,22 @@ struct TimerMainView: View {
     @State private var showingTimerSettings = false
     
     var body: some View {
-        VStack(spacing: 48) {
+        VStack(spacing: 32) {
+            // Top navigation dots
+            HStack(spacing: 8) {
+                ForEach(0..<7, id: \.self) { index in
+                    Circle()
+                        .fill(index == 0 ? Color.red : Color.gray.opacity(0.3))
+                        .frame(width: 8, height: 8)
+                }
+            }
+            .padding(.top, 20)
+            
             // Focus Question Section
             VStack(spacing: 24) {
                 Text("What's your focus?")
                     .font(.title2.weight(.semibold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                 
                 HStack {
                     Image(systemName: "circle.fill")
@@ -26,7 +36,7 @@ struct TimerMainView: View {
                     
                     Text("General")
                         .font(.subheadline.weight(.medium))
-                        .foregroundColor(.primary)
+                        .foregroundColor(.black)
                     
                     Image(systemName: "chevron.down")
                         .foregroundColor(.secondary)
@@ -39,7 +49,7 @@ struct TimerMainView: View {
                         .fill(Color.white)
                         .overlay(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                         )
                         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                 )
@@ -54,85 +64,36 @@ struct TimerMainView: View {
                             .fill(Color.white)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                             )
                             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                     )
-                    .foregroundColor(.primary)
+                    .foregroundColor(.black)
                     .font(.subheadline)
             }
             
             // Circular Timer
             CircularTimerView()
             
-            // Control Buttons
-            HStack(spacing: 24) {
-                Button(action: { showingTimerSettings = true }) {
-                    Image(systemName: "timer")
-                        .font(.title2.weight(.medium))
-                        .foregroundColor(.secondary)
-                        .frame(width: 50, height: 50)
-                        .background(
-                            Circle()
-                                .fill(Color.white)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                                )
-                                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-                        )
-                }
-                .buttonStyle(PlainButtonStyle())
-                
+            // Start Session Button
+            VStack(spacing: 16) {
                 Button(action: toggleTimer) {
                     Text(timerManager.isRunning ? "STOP SESSION" : "START SESSION")
                         .font(.headline.weight(.bold))
                         .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, minHeight: 56)
+                        .frame(width: 200, height: 50)
                         .background(
-                            RoundedRectangle(cornerRadius: 28)
-                                .fill(
-                                    LinearGradient(
-                                        colors: timerManager.isRunning ?
-                                        [Color.red, Color.red.opacity(0.8)] :
-                                        [Color.red, Color.orange],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .shadow(
-                                    color: timerManager.isRunning ? .red.opacity(0.4) : .orange.opacity(0.4),
-                                    radius: 16,
-                                    x: 0,
-                                    y: 8
-                                )
+                            RoundedRectangle(cornerRadius: 25)
+                                .fill(Color.red)
+                                .shadow(color: .red.opacity(0.3), radius: 8, x: 0, y: 4)
                         )
                 }
                 .buttonStyle(PlainButtonStyle())
                 .scaleEffect(timerManager.isRunning ? 0.98 : 1.0)
                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: timerManager.isRunning)
-                
-                Button(action: { timerManager.reset() }) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.title2.weight(.medium))
-                        .foregroundColor(.secondary)
-                        .frame(width: 50, height: 50)
-                        .background(
-                            Circle()
-                                .fill(Color.white)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                                )
-                                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-                        )
-                }
-                .buttonStyle(PlainButtonStyle())
-                .disabled(timerManager.isRunning)
-                .opacity(timerManager.isRunning ? 0.5 : 1.0)
             }
-            .padding(.horizontal, 32)
             
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .sheet(isPresented: $showingTimerSettings) {
@@ -157,103 +118,56 @@ struct CircularTimerView: View {
     
     var body: some View {
         ZStack {
-            // Outer glow effect
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            Color.red.opacity(timerManager.isRunning ? 0.3 : 0.1),
-                            Color.clear
-                        ],
-                        center: .center,
-                        startRadius: 140,
-                        endRadius: 180
-                    )
-                )
-                .frame(width: 360, height: 360)
-                .scaleEffect(pulseAnimation ? 1.1 : 1.0)
-                .opacity(pulseAnimation ? 0.6 : 1.0)
-                .animation(
-                    timerManager.isRunning ?
-                    .easeInOut(duration: 2.0).repeatForever(autoreverses: true) :
-                    .easeInOut(duration: 0.3),
-                    value: pulseAnimation
-                )
-                .onAppear {
-                    if timerManager.isRunning {
-                        pulseAnimation = true
-                    }
-                }
-                .onChange(of: timerManager.isRunning) { isRunning in
-                    pulseAnimation = isRunning
-                }
-            
             // Tick marks around the circle
             ZStack {
                 ForEach(0..<60, id: \.self) { tick in
                     Rectangle()
-                        .fill(Color.gray.opacity(tick % 5 == 0 ? 0.6 : 0.3))
+                        .fill(Color.gray.opacity(tick % 15 == 0 ? 0.8 : (tick % 5 == 0 ? 0.4 : 0.2)))
                         .frame(
-                            width: tick % 15 == 0 ? 4 : (tick % 5 == 0 ? 2 : 1),
-                            height: tick % 15 == 0 ? 24 : (tick % 5 == 0 ? 16 : 8)
+                            width: tick % 15 == 0 ? 3 : (tick % 5 == 0 ? 2 : 1),
+                            height: tick % 15 == 0 ? 20 : (tick % 5 == 0 ? 12 : 6)
                         )
-                        .offset(y: -160)
+                        .offset(y: -120)
                         .rotationEffect(.degrees(Double(tick) * 6))
                 }
             }
             
             // Background circle
             Circle()
-                .stroke(Color.gray.opacity(0.15), lineWidth: 12)
-                .frame(width: 320, height: 320)
+                .stroke(Color.gray.opacity(0.2), lineWidth: 8)
+                .frame(width: 240, height: 240)
             
             // Progress circle with gradient
             Circle()
                 .trim(from: 0, to: timerManager.progress)
                 .stroke(
-                    AngularGradient(
-                        colors: [
-                            Color.red,
-                            Color.orange,
-                            Color.red.opacity(0.8),
-                            Color.red
-                        ],
-                        center: .center,
-                        startAngle: .degrees(-90),
-                        endAngle: .degrees(270)
-                    ),
-                    style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                    Color.red,
+                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
                 )
-                .frame(width: 320, height: 320)
+                .frame(width: 240, height: 240)
                 .rotationEffect(.degrees(-90))
                 .animation(.easeInOut(duration: 1.0), value: timerManager.progress)
-                .shadow(color: .red.opacity(0.4), radius: 8, x: 0, y: 0)
             
             // Progress indicator dot
             Circle()
                 .fill(
-                    RadialGradient(
-                        colors: [Color.white, Color.red.opacity(0.8)],
-                        center: .center,
-                        startRadius: 2,
-                        endRadius: 8
-                    )
+                    Color.red
                 )
-                .frame(width: 20, height: 20)
-                .offset(y: -160)
+                .frame(width: 16, height: 16)
+                .offset(y: -120)
                 .rotationEffect(.degrees(-90 + (timerManager.progress * 360)))
-                .shadow(color: .red.opacity(0.8), radius: 12, x: 0, y: 0)
+                .shadow(color: .red.opacity(0.4), radius: 4, x: 0, y: 2)
                 .animation(.easeInOut(duration: 1.0), value: timerManager.progress)
             
             // Center content
             VStack(spacing: 12) {
                 Text(timerManager.displayTime)
-                    .font(.system(size: 48, weight: .thin, design: .monospaced))
-                    .foregroundColor(.primary)
+                    .font(.system(size: 40, weight: .thin, design: .monospaced))
+                    .foregroundColor(.black)
                 
                 Text(timerManager.isRunning ? "LOCKED IN" : "READY TO LOCK IN")
                     .font(.caption.weight(.semibold))
-                    .foregroundColor(timerManager.isRunning ? .red : .gray)
+                    .foregroundColor(.gray)
                     .tracking(2)
                     .animation(.easeInOut, value: timerManager.isRunning)
                 
@@ -261,17 +175,17 @@ struct CircularTimerView: View {
                 if !timerManager.isRunning {
                     Text("21:14 → 09:46")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.gray)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
                         .background(
                             Capsule()
-                                .fill(Color.gray.opacity(0.1))
+                                .fill(Color.gray.opacity(0.15))
                         )
                         .padding(.top, 8)
                 }
             }
         }
-        .frame(width: 400, height: 400)
+        .frame(width: 280, height: 280)
     }
 }
